@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RECOMENDAÇÕES DE FILMES</title>
+    <style>
+        
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f3f3f3;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        header {
+            background-color: #4D4DFF;
+            color: #fff;
+            padding: 20px;
+            width: 100%;
+            text-align: center;
+        }
+        form {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        input {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px 0 0 4px;
+            outline: none;
+        }
+        button {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            background-color: #4D4DFF;
+            color: #fff;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #333;
+        }
+        #moviesContainer {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 20px;
+            gap: 20px;
+            width: 100%;
+        }
+        .movie {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 200px;
+            overflow: hidden;
+            text-align: center;
+        }
+        .movie img {
+            width: 100%;
+        }
+        .movie h2 {
+            font-size: 18px;
+            margin: 10px 0;
+            padding: 0 10px;
+        }
+        .movie p {
+            font-size: 14px;
+            color: #555;
+            padding: 0 10px 10px 10px;
+        }
+        .video-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: -1;
+}
+
+.video-background video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+
+    </style>
+</head>
+<body>
+
+    <div class="video-background">
+        <video autoplay muted loop>
+            <source src="videos/neon-geometry-shapes-moewalls-com.mp4" type="video/mp4">
+        </video>
+    </div>
+
+    <header>
+        <h1>RECOMENDAÇÕES DE FILMES</h1>
+        <form id="searchForm">
+            <input type="text" id="searchQuery" placeholder="Buscar filmes..." required>
+            <button type="submit">Pesquisar</button>
+        </form>
+    </header>
+    <main>
+        <section id="moviesContainer">
+            <!-- Filmes serão inseridos aqui -->
+        </section>
+    </main>
+    <script>
+        const API_KEY = 'd04a5d826effd2b7cfcbdcbbac49e20a';  // Substitua por sua chave real
+
+        document.getElementById('searchForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const query = document.getElementById('searchQuery').value;
+            if (query) {
+                fetchMovies(query);
+            }
+        });
+
+        async function fetchMovies(query) {
+            try {
+                const response = await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(query)}&language=pt-BR`);
+                if (!response.ok) {
+                    throw new Error(`Erro: ${response.statusText}`);
+                }
+                const data = await response.json();
+                displayMovies(data.results);
+            } catch (error) {
+                console.error('Erro ao buscar filmes:', error);
+                document.getElementById('moviesContainer').innerHTML = '<p>Erro ao buscar filmes. Verifique o console para mais detalhes.</p>';
+            }
+        }
+
+        function displayMovies(movies) {
+            const container = document.getElementById('moviesContainer');
+            container.innerHTML = '';
+
+            if (movies.length === 0) {
+                container.innerHTML = '<p>Nenhum filme encontrado.</p>';
+                return;
+            }
+
+            movies.forEach(movie => {
+                const movieElement = document.createElement('div');
+                movieElement.classList.add('movie');
+                movieElement.innerHTML = `
+                    <img src="${movie.poster_path ? `https://image.tmdb.org/t/p/w200${movie.poster_path}` : 'https://via.placeholder.com/200x300?text=Sem+Imagem'}" alt="${movie.title}">
+                    <h2>${movie.title}</h2>
+                    <p>Data de lançamento: ${movie.release_date}</p>
+                    <p>Avaliação: ${movie.vote_average}</p>
+                `;
+                container.appendChild(movieElement);
+            });
+        }
+    </script>
+</body>
+</html>
